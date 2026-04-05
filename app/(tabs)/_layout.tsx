@@ -1,37 +1,58 @@
 import { Tabs } from "expo-router";
-import React from "react";
+import { Home, Wallet, Landmark, Settings } from "lucide-react-native";
 
-import { HapticTab } from "@/components/haptic-tab";
-import { IconSymbol } from "@/components/ui/icon-symbol";
-import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const activeTint = colorScheme === "dark" ? "#D4A843" : "#1B4332";
+  const inactiveTint = colorScheme === "dark" ? "#6B7280" : "#9CA3AF";
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
-        headerShown: false,
-        tabBarButton: HapticTab,
+        tabBarActiveTintColor: activeTint,
+        tabBarInactiveTintColor: inactiveTint,
+        headerShown: true,
+        headerStyle: {
+          backgroundColor: colorScheme === "dark" ? "#1A1A1A" : "#FAF8F5",
+        },
+        headerTintColor: colorScheme === "dark" ? "#FAF8F5" : "#1B4332",
+        tabBarStyle: {
+          backgroundColor: colorScheme === "dark" ? "#1A1A1A" : "#FFFFFF",
+          borderTopColor: colorScheme === "dark" ? "#333" : "#E5E7EB",
+        },
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
           title: "Dashboard",
-          tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="house.fill" color={color} />
+          tabBarIcon: ({ color, size }) => <Home size={size} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="accounts"
+        options={{
+          title: "Accounts",
+          tabBarIcon: ({ color, size }) => <Wallet size={size} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="registered"
+        options={{
+          title: "Registered",
+          tabBarIcon: ({ color, size }) => (
+            <Landmark size={size} color={color} />
           ),
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="settings"
         options={{
-          title: "Accounts",
-          tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="creditcard.fill" color={color} />
+          title: "Settings",
+          tabBarIcon: ({ color, size }) => (
+            <Settings size={size} color={color} />
           ),
         }}
       />
