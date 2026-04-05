@@ -1,5 +1,5 @@
 import { eq, and, isNull, desc, sql, gte, lte } from "drizzle-orm";
-import { v4 as uuidv4 } from "uuid";
+import * as Crypto from "expo-crypto";
 import { getDatabase } from "../db/client";
 import { transactions } from "../db/schema";
 import { recomputeBalance } from "./account-repository";
@@ -35,7 +35,7 @@ export interface UpdateTransactionInput {
 /** Create a single transaction and recompute the account balance. */
 export function createTransaction(input: CreateTransactionInput) {
   const db = getDatabase();
-  const id = uuidv4();
+  const id = Crypto.randomUUID();
 
   db.insert(transactions)
     .values({
@@ -61,8 +61,8 @@ export function createTransaction(input: CreateTransactionInput) {
  */
 export function createTransfer(input: CreateTransferInput) {
   const db = getDatabase();
-  const outflowId = uuidv4();
-  const inflowId = uuidv4();
+  const outflowId = Crypto.randomUUID();
+  const inflowId = Crypto.randomUUID();
 
   // Outflow from source account (negative amount)
   db.insert(transactions)

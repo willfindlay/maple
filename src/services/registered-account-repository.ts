@@ -1,5 +1,5 @@
 import { eq, and } from "drizzle-orm";
-import { v4 as uuidv4 } from "uuid";
+import * as Crypto from "expo-crypto";
 import { getDatabase } from "../db/client";
 import { registeredAccounts, registeredTransactions } from "../db/schema";
 import type { RegisteredAccountType } from "../models/account";
@@ -28,7 +28,7 @@ export interface LogRegisteredTransactionInput {
 /** Create a registered account record linked to an existing account. */
 export function createRegisteredAccount(input: CreateRegisteredAccountInput) {
   const db = getDatabase();
-  const id = uuidv4();
+  const id = Crypto.randomUUID();
 
   db.insert(registeredAccounts)
     .values({
@@ -72,7 +72,7 @@ export function getRegisteredAccounts(type?: RegisteredAccountType) {
 /** Log a contribution, withdrawal, or transfer for a registered account. */
 export function logRegisteredTransaction(input: LogRegisteredTransactionInput) {
   const db = getDatabase();
-  const id = uuidv4();
+  const id = Crypto.randomUUID();
 
   db.insert(registeredTransactions)
     .values({

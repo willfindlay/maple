@@ -1,4 +1,4 @@
-import { v4 as uuidv4 } from "uuid";
+import * as Crypto from "expo-crypto";
 import { getDatabase } from "./client";
 import { categories } from "./schema";
 
@@ -147,7 +147,7 @@ export async function seedCategories() {
 
   let sortOrder = 0;
   for (const cat of DEFAULT_CATEGORIES) {
-    const parentId = uuidv4();
+    const parentId = Crypto.randomUUID();
     db.insert(categories)
       .values({
         id: parentId,
@@ -163,7 +163,7 @@ export async function seedCategories() {
       for (const child of cat.children) {
         db.insert(categories)
           .values({
-            id: uuidv4(),
+            id: Crypto.randomUUID(),
             name: child.name,
             parentId,
             icon: child.icon,

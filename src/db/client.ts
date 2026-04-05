@@ -28,35 +28,35 @@ let rawDb: ReturnType<typeof openDatabaseSync> | null = null;
 
 /**
  * Apply the SQLCipher encryption key to the database.
- * Uses a prepared statement to avoid string interpolation in SQL.
+ * PRAGMA statements do not support parameter binding in SQLite,
+ * so the key is passed as a hex literal. The key is a random hex
+ * string from our own SecureStore, never user input.
  */
 function applyEncryptionKey(
   db: ReturnType<typeof openDatabaseSync>,
   key: string,
 ) {
   // SQLCipher PRAGMA key must be the first statement after opening.
-  // The key is a hex string from our own SecureStore, never user input.
-  const stmt = db.prepareSync("PRAGMA key = ?");
-  try {
-    stmt.executeSync(key);
-  } finally {
-    stmt.finalizeSync();
-  }
+  // Using hex key format: x'<hex bytes>'
+  db.execSync(`PRAGMA key = "x'${key}'"`);
 }
 
 /**
- * Initialize the database connection with encryption, WAL mode, and integrity check.
+ * Initialize the database connection with WAL mode and integrity check.
+ * SQLCipher encryption is applied only in production builds (requires prebuild).
  * Must be called once at app startup before any queries.
  */
 export async function initDatabase() {
   if (dbInstance) return dbInstance;
 
-  const encryptionKey = await getOrCreateEncryptionKey();
-
   rawDb = openDatabaseSync(DB_NAME);
 
-  // Apply encryption key (SQLCipher)
-  applyEncryptionKey(rawDb, encryptionKey);
+  // SQLCipher encryption requires a prebuild with the expo-sqlite config plugin.
+  // Skip in development (Expo Go) where SQLCipher is not compiled in.
+  if (!__DEV__) {
+    const encryptionKey = await getOrCreateEncryptionKey();
+    applyEncryptionKey(rawDb, encryptionKey);
+  }
 
   // Enable WAL mode for better write performance and crash safety
   rawDb.execSync("PRAGMA journal_mode = WAL");

@@ -1,5 +1,5 @@
 import { eq, sql, and, isNull } from "drizzle-orm";
-import { v4 as uuidv4 } from "uuid";
+import * as Crypto from "expo-crypto";
 import { getDatabase } from "../db/client";
 import { accounts, transactions } from "../db/schema";
 import { isAssetType, type AccountType } from "../models/account";
@@ -25,7 +25,7 @@ export interface UpdateAccountInput {
 /** Create a new account. If initialBalance is provided, creates an opening balance transaction. */
 export function createAccount(input: CreateAccountInput) {
   const db = getDatabase();
-  const id = uuidv4();
+  const id = Crypto.randomUUID();
   const isAsset = isAssetType(input.type);
 
   db.insert(accounts)
@@ -46,7 +46,7 @@ export function createAccount(input: CreateAccountInput) {
   if (input.initialBalance && input.initialBalance !== 0) {
     db.insert(transactions)
       .values({
-        id: uuidv4(),
+        id: Crypto.randomUUID(),
         accountId: id,
         date: new Date().toISOString().split("T")[0],
         amount: input.initialBalance,
